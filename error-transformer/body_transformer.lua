@@ -12,10 +12,10 @@ local function get_mapped_error(message)
 local error_msg_mappings = {}
 
   error_msg_mappings["API rate limit exceeded"] =
-      '{"meta": [{"code": 9990,"message": "访问过于频繁", "hint": "API rate limit exceeded"}]}'
+      '{"meta": {"code": 9990,"message": "访问过于频繁", "hint": "API rate limit exceeded"}}'
 
   error_msg_mappings["name resolution failed"] =
-      '{"meta": [{"code": 9991,"message": "内部服务错误", "hint": "name resolution failed"}]}'
+      '{"meta": {"code": 9991,"message": "内部服务错误", "hint": "name resolution failed"}}'
 
   error_msg_mappings["no Route matched with those values"] =
       '{"meta": {"code": 9992, "message": "路由错误", "hint": "no Route matched with those values"}}'
