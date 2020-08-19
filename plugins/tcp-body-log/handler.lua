@@ -3,7 +3,8 @@ local BasePlugin = require "kong.plugins.base_plugin"
 local log = require "kong.plugins.tcp-body-log.log"
 local kong = kong
 local ngx = ngx
-local cjson = require "cjson"
+local string_find = string.find
+local req_get_headers = ngx.req.get_headers
 
 local TCPBodyLogHandler = BasePlugin:extend()
 
@@ -14,14 +15,29 @@ end
 function TCPBodyLogHandler:access(conf)
     TCPBodyLogHandler.super.access(self)
     kong.ctx.tcp_body_log = { request_body = "", response_body = "" }
-
+    -- check config
     if (conf.log_request_body) then
-        local body, err = kong.request.get_raw_body()
-
-        if err then
-            kong.log.err(err)
-        else
-            kong.ctx.tcp_body_log.request_body = body
+        -- check request method
+        local method = ngx.req.get_method()
+        if (method == "POST" or method == "PUT" or method == "DELETE") then
+            -- check request content_type
+            local headers = req_get_headers()
+            local content_type = headers["content-type"]
+            if content_type then
+                content_type = content_type:lower()
+                -- only get json\form\xml body
+                if (string_find(content_type, "application/json", nil, true)
+                        or string_find(content_type, "application/x-www-form-urlencoded", nil, true)
+                        or string_find(content_type, "text/xml", nil, true)
+                ) then
+                    local body, err = kong.request.get_raw_body()
+                    if err then
+                        kong.log.err(err)
+                    else
+                        kong.ctx.tcp_body_log.request_body = body
+                    end
+                end
+            end
         end
     end
 end
