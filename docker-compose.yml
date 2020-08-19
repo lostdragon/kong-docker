@@ -5,7 +5,7 @@ networks:
 services:
   kong-migrations:
     build: ./
-    image: kong:1.4.0-error-transformer
+    image: kong:1.4.0-plugins
     command: kong migrations bootstrap
     depends_on:
       db:
@@ -23,7 +23,7 @@ services:
     restart: on-failure
   kong-migrations-up:
     build: ./
-    image: kong:1.4.0-error-transformer
+    image: kong:1.4.0-plugins
     command: kong migrations up
     depends_on:
       db:
@@ -41,7 +41,7 @@ services:
     restart: on-failure
   kong:
     build: ./
-    image: kong:1.4.0-error-transformer
+    image: kong:1.4.0-plugins
     user: "${KONG_USER:-root}"
     depends_on:
       db:

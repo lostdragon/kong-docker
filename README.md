@@ -8,6 +8,8 @@ Lua plugin, which, based on the message returned by the Kong core logic or highe
 error to a new one (hardcoded in [logic](./error-transformer/body_transformer.lua)) and 
 returns that one in the response payload instead. Could be easily modified to read messages from database.
 
+### tcp-body-log
+Make tcp-log can record request or response body.
 
 ## How to install plugins
 
@@ -17,11 +19,11 @@ tell Kong which plugin to load up on boot.
 [Example for Docker](Dockerfile): to copy files with `kong:1.4.0` as a base image use the following command to copy a plugin 
 to the right location:
 
-    COPY error-transformer/ /usr/local/share/lua/5.1/kong/plugins/error-transformer/
+    COPY plugins/ /usr/local/share/lua/5.1/kong/plugins/
 
 Then enable it in [the config](kong.conf), either in `kong.conf` by setting `plugins` field or setting environment variable `KONG_PLUGINS` to:
 
-    bundled,error-transformer
+    bundled,error-transformer,tcp-body-log
 
 ## Run Docker Compose locally
 
