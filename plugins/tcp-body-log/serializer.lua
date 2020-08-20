@@ -10,7 +10,13 @@ function _M.serialize(ngx, kong)
     end
 
     local request_uri = ngx.var.request_uri or ""
-    local tcp_body_log_ctx = kong.ctx.tcp_body_log or {}
+
+    local request_body
+    local response_body
+    if kong.ctx.plugin then
+        request_body = kong.ctx.plugin.request_body
+        response_body = kong.ctx.plugin.response_body
+    end
 
     return {
         request = {
@@ -20,13 +26,13 @@ function _M.serialize(ngx, kong)
             method = ngx.req.get_method(), -- http method
             headers = ngx.req.get_headers(),
             size = ngx.var.request_length,
-            body = tcp_body_log_ctx.request_body
+            body = request_body
         },
         response = {
             status = ngx.status,
             headers = ngx.resp.get_headers(),
             size = ngx.var.bytes_sent,
-            body = tcp_body_log_ctx.response_body
+            body = response_body
         },
         latencies = {
             kong = (ngx.ctx.KONG_ACCESS_TIME or 0) +
@@ -38,7 +44,8 @@ function _M.serialize(ngx, kong)
         authenticated_entity = authenticated_entity,
         upstream_uri = ngx.var.upstream_uri,
         client_ip = ngx.var.remote_addr,
-        started_at = ngx.req.start_time() * 1000
+        started_at = ngx.req.start_time() * 1000,
+        node_id = kong.node.get_id()
     }
 end
 

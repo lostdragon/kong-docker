@@ -1,10 +1,10 @@
 local tcp_body_log_serializer = require "kong.plugins.tcp-body-log.serializer"
 local BasePlugin = require "kong.plugins.base_plugin"
 local log = require "kong.plugins.tcp-body-log.log"
+
 local kong = kong
 local ngx = ngx
 local string_find = string.find
-local req_get_headers = ngx.req.get_headers
 
 local TCPBodyLogHandler = BasePlugin:extend()
 
@@ -14,15 +14,15 @@ end
 
 function TCPBodyLogHandler:access(conf)
     TCPBodyLogHandler.super.access(self)
-    kong.ctx.tcp_body_log = { request_body = "", response_body = "" }
+    kong.ctx.plugin.request_body = ""
+    kong.ctx.plugin.response_body = ""
     -- check config
     if (conf.log_request_body) then
         -- check request method
-        local method = ngx.req.get_method()
+        local method = kong.request.get_method():upper()
         if (method == "POST" or method == "PUT" or method == "DELETE") then
             -- check request content_type
-            local headers = req_get_headers()
-            local content_type = headers["content-type"]
+            local content_type = kong.request.get_header('content-type')
             if content_type then
                 content_type = content_type:lower()
                 -- only get json\form\xml body
@@ -34,7 +34,7 @@ function TCPBodyLogHandler:access(conf)
                     if err then
                         kong.log.err(err)
                     else
-                        kong.ctx.tcp_body_log.request_body = body
+                        kong.ctx.plugin.request_body = body
                     end
                 end
             end
@@ -47,13 +47,17 @@ function TCPBodyLogHandler:body_filter(conf)
     TCPBodyLogHandler.super.body_filter(self)
 
     if (conf.log_response_body) then
-        -- kong.ctx.tcp_body_log is nil, if route not found
-        if (kong.ctx.tcp_body_log == nil) then
-            kong.ctx.tcp_body_log = { request_body = "", response_body = "" }
+        -- kong.ctx.plugin is nil, if route not found
+        if (kong.ctx.plugin.request_body == nil) then
+            kong.ctx.plugin.request_body = ""
+        end
+
+        if (kong.ctx.plugin.response_body == nil) then
+            kong.ctx.plugin.response_body = ""
         end
 
         local chunk = ngx.arg[1]
-        kong.ctx.tcp_body_log.response_body = kong.ctx.tcp_body_log.response_body .. (chunk or "")
+        kong.ctx.plugin.response_body = kong.ctx.plugin.response_body .. (chunk or "")
     end
 
 end
@@ -65,9 +69,9 @@ function TCPBodyLogHandler:log(conf)
 
         -- Call serializer
         local message = tcp_body_log_serializer.serialize(ngx, kong)
-
         -- Call execute method of 'log' initialized earlier
         log.execute(conf, message)
+
     end
 end
 
