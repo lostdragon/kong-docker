@@ -11,6 +11,13 @@ returns that one in the response payload instead. Could be easily modified to re
 ### tcp-body-log
 Make tcp-log can record request or response body.
 
+
+### skywalking
+
+The Nginx Lua agent 0.2.0 for Apache SkyWalking 8 kong-plugin
+
+[link](https://github.com/polaris-liu/kong-plugin-skywalking)
+
 ## How to install plugins
 
 The plugin must reside in the right folder, so Kong is aware of the plugin. Also you must update the `plugins` config to
