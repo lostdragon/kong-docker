@@ -5,7 +5,7 @@ networks:
 services:
   kong-migrations:
     build: ./
-    image: ccr.ccs.tencentyun.com/huzi/kong:1.4.0-plugins
+    image: ccr.ccs.tencentyun.com/huzi/kong:2.4.0-plugins
     command: kong migrations bootstrap
     depends_on:
       db:
@@ -23,7 +23,7 @@ services:
     restart: on-failure
   kong-migrations-up:
     build: ./
-    image: ccr.ccs.tencentyun.com/huzi/kong:1.4.0-plugins
+    image: ccr.ccs.tencentyun.com/huzi/kong:2.4.0-plugins
     command: kong migrations up
     depends_on:
       db:
@@ -41,7 +41,7 @@ services:
     restart: on-failure
   kong:
     build: ./
-    image: ccr.ccs.tencentyun.com/huzi/kong:1.4.0-plugins
+    image: ccr.ccs.tencentyun.com/huzi/kong:2.4.0-plugins
     user: "${KONG_USER:-root}"
     depends_on:
       db:
@@ -58,6 +58,7 @@ services:
       KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_DNS_RESOLVER: 127.0.0.11,10.20.10.10:8600
       KONG_DNS_ORDER: SRV,A,CNAME
       KONG_LOG_LEVEL: debug
     networks:
@@ -90,7 +91,7 @@ services:
     volumes:
       - ./data/postgresql:/var/lib/postgresql/data
   konga-prepare:
-    image: pantsel/konga:0.14.7
+    image: pantsel/konga:0.14.9
     command: "-c prepare -a postgres -u postgresql://kong:kong@db:5432/konga_db"
     networks:
       - kong-net
@@ -101,7 +102,7 @@ services:
       db:
         condition: service_healthy
   konga:
-    image: pantsel/konga:0.14.7
+    image: pantsel/konga:0.14.9
     restart: always
     networks:
       - kong-net

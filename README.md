@@ -5,7 +5,7 @@
 ### error-transformer
 
 Lua plugin, which, based on the message returned by the Kong core logic or higher priority plugins, maps the 
-error to a new one (hardcoded in [logic](./error-transformer/body_transformer.lua)) and 
+error to a new one (hardcoded in [logic](./plugins/error-transformer/body_transformer.lua)) and 
 returns that one in the response payload instead. Could be easily modified to read messages from database.
 
 ### tcp-body-log
@@ -50,3 +50,11 @@ run database migrations and spin up a Kong instance.
     
     # Use the IP to access Kong Proxy
     curl -X GET https://<Kong-IP>:8000
+
+## kong version
+```
+1.4.0 konga最高只能兼容0.14.7
+2.0.0 移除了插件run_on参数
+2.1.0 白名单黑名单由whitelist/blacklist改为allow/deny
+2.4.0 websocket Conneciton Upgrade 问题
+```
